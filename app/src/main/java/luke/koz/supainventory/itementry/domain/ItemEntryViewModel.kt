@@ -38,10 +38,10 @@ class ItemEntryViewModel : ViewModel() {
 
     suspend fun saveItem() {
         val localItemEntry : GetItemEntry = GetItemEntry(
-            id = ItemUiState().itemDetails.id,
-            itemName = ItemUiState().itemDetails.name,
-            itemPrice = ItemUiState().itemDetails.price.toFloat(),
-            itemQuantity = ItemUiState().itemDetails.quantity.toInt()
+            id = itemUiState.itemDetails.id,
+            itemName = itemUiState.itemDetails.name,
+            itemPrice = itemUiState.itemDetails.price.toFloat(),
+            itemQuantity = itemUiState.itemDetails.quantity.toInt()
         )
        supabase
             .from("items_table")
