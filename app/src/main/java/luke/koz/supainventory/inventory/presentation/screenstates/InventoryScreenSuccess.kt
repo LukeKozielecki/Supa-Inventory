@@ -61,7 +61,10 @@ fun InventoryScreenSuccess(
     ) { innerPadding ->
         InventoryBody(
             itemList = viewModel.items,//inventoryListUiState.itemList,
-            onItemClick = navToItemEdit,
+            onItemClick = {
+                navToItemEdit(it)
+                viewModel.setItemListUiState()
+                          },
             modifier = modifier.fillMaxSize(),
             contentPadding = innerPadding,
         )
@@ -73,6 +76,6 @@ fun InventoryScreenSuccess(
 @Composable
 private fun InventoryScreenPreview() {
     SupaInventoryTheme {
-        InventoryScreenSuccess(navToItemEntry = {}, navToItemEdit = {})
+        InventoryScreenSuccess(navToItemEntry = {}, navToItemEdit = {}, )
     }
 }

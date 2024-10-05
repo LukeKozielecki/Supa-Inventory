@@ -44,7 +44,7 @@ class InventoryViewModel : ViewModel() {
     private val _items = mutableStateListOf<GetItemEntry>()
     val items: List<GetItemEntry> = _items
 
-    private fun setItemListUiState(){
+    /*private*/ fun setItemListUiState(){
         itemsListUiState = ItemListState.Loading
         fetchItems()
         itemsListUiState = try {
@@ -63,6 +63,11 @@ class InventoryViewModel : ViewModel() {
             //todo setup exception handling
             // when no internet connection, this function when called throws exception here,
             // calling try catch didn't give expected result of skipping this code
+            /**
+             * _items is cleared because it prevents
+             * java.lang.IllegalArgumentException: Key "1" was already used...
+             */
+            _items.clear()
             val results = supabase.from("items_table").select().decodeList<GetItemEntry>()
             _items.addAll(results)
         }

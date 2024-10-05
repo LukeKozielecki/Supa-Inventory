@@ -11,9 +11,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import luke.koz.supainventory.inventory.data.InventoryItemEntry
+import luke.koz.supainventory.inventory.domain.InventoryViewModel
 import luke.koz.supainventory.inventory.presentation.InventoryScreenOptionSelect
 import luke.koz.supainventory.inventory.presentation.InventoryScreenOptionSelectRoute
-import luke.koz.supainventory.inventory.domain.InventoryViewModel
 import luke.koz.supainventory.itementry.presentation.ItemEntryScreen
 import luke.koz.supainventory.itementry.presentation.ItemEntryScreenRoute
 import kotlin.reflect.typeOf
@@ -46,7 +46,12 @@ fun InventoryNavHost(modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ItemEntryScreen(navigateBack = { /*TODO*/ }, onNavigateUp = { /*TODO*/ })
+                ItemEntryScreen(
+                    navigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateUp = { /*TODO*/ }
+                )
             }
         }
     }

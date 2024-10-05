@@ -6,11 +6,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.serialization.Serializable
+import luke.koz.supainventory.inventory.domain.InventoryViewModel
+import luke.koz.supainventory.inventory.domain.ItemListState
 import luke.koz.supainventory.inventory.presentation.screenstates.InventoryListErrorScreen
 import luke.koz.supainventory.inventory.presentation.screenstates.InventoryListLoadingScreen
 import luke.koz.supainventory.inventory.presentation.screenstates.InventoryScreenSuccess
-import luke.koz.supainventory.inventory.domain.InventoryViewModel
-import luke.koz.supainventory.inventory.domain.ItemListState
 import luke.koz.supainventory.ui.theme.SupaInventoryTheme
 
 @Serializable object InventoryScreenOptionSelectRoute

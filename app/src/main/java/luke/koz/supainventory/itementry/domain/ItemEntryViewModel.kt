@@ -7,7 +7,11 @@ import androidx.lifecycle.ViewModel
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import luke.koz.supainventory.inventory.model.GetItemEntry
+import kotlin.random.Random
 
 data class ItemUiState(
     val itemDetails: ItemDetails = ItemDetails(),
@@ -22,7 +26,7 @@ data class ItemDetails(
 )
 
 class ItemEntryViewModel : ViewModel() {
-    private val supabase = createSupabaseClient(
+    private val supabase = createSupabaseClient(//todo move this to interface as it is needed in many places
         supabaseUrl = "https://qsdihmtmasiosykepcwm.supabase.co",
         supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzZGlobXRtYXNpb3N5a2VwY3dtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY2NjMyMDYsImV4cCI6MjA0MjIzOTIwNn0.ygESpL0irLfa8o3PAvsDTSqtNKVj_sp33bm5k0HlOso"
     ) {
@@ -36,27 +40,45 @@ class ItemEntryViewModel : ViewModel() {
             ItemUiState(itemDetails = itemDetails, isEntryValid = validateInput(itemDetails))
     }
 
+    @Serializable
+    data class ItemId(
+        @SerialName(value = "id") val id : Int,)
+
+    /**
+     * [generateUniqueId] creates a variable to store supabase response of ID column.
+     * than it creates a new list using previous variable, because it needs to be deserialized
+     * than it creates a new variable for a purpose of new Id
+     * than it enters a loop to generate new id until it succeeds. when too many elements enter database
+     *  it will execute indefinitely. 128 elements is the max.
+     * than it succeeds at generating new <Int> id and returns it
+     */
+    private suspend fun generateUniqueId() : Int {
+        val currentIds = supabase
+            .from("items_table")
+            .select(columns = Columns.list("id"))
+            .decodeList<ItemId>()
+        val idsList: List<Int> = currentIds.map { it.id }
+        var newId : Int
+        while(true) {//todo fix max size look fun description
+            newId = Random.nextInt(0, 127)
+            if (!idsList.contains(newId)) {return newId}
+        }
+          /*note "why not just list.size+1" at id. the idea behind generating random id, is to avoid situation
+          where user know "oh, my item is indexed at 18, this means there are at leased 18 (to 19) items
+          in this database, or that product Spanish Banana is index 40, followed by French wine at 42,
+          implying "there is an item at 41"*/
+    }
+
     suspend fun saveItem() {
         val localItemEntry : GetItemEntry = GetItemEntry(
-            id = itemUiState.itemDetails.id,
+            id = generateUniqueId(),
             itemName = itemUiState.itemDetails.name,
             itemPrice = itemUiState.itemDetails.price.toFloat(),
             itemQuantity = itemUiState.itemDetails.quantity.toInt()
         )
        supabase
             .from("items_table")
-            .insert(
-                mapOf(
-                    "id" to 20,//ItemUiState().itemDetails.id,
-                    "item_name" to localItemEntry.itemName,
-                    "item_price" to localItemEntry.itemPrice,
-                    "item_quantity" to localItemEntry.itemQuantity
-                )
-            ) {
-                select()
-                single()
-            }
-            .decodeAs<GetItemEntry>()
+            .insert(localItemEntry)
     }
 
     private fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {
