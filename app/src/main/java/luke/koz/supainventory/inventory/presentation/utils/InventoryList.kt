@@ -1,5 +1,6 @@
 package luke.koz.supainventory.inventory.presentation.utils
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -17,7 +18,7 @@ import luke.koz.supainventory.ui.theme.SupaInventoryTheme
 @Composable
 fun InventoryList(
     itemList: List<GetItemEntry>,
-    onItemClick: (GetItemEntry) -> Unit,
+    onItemClick: (Int) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -25,11 +26,13 @@ fun InventoryList(
         modifier = modifier,
         contentPadding = contentPadding
     ) {
-        items(items = itemList, key = { it.id }) { item ->
+        val localList = itemList
+        items(items = itemList, key = { item -> itemList.indexOf(item) }) { item ->
+            Log.d("InventoryItem", "InventoryList: Element at itemId ${item.id} is ${item.itemName}")
             InventoryItem(item = item,
                 modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_small))
-                    .clickable { onItemClick(item) })
+                    .clickable { onItemClick(item.id) })
         }
     }
 }

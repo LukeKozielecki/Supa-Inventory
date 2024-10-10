@@ -21,7 +21,8 @@ fun InventoryScreenOptionSelect(
     uiState: ItemListState,
     viewModel: InventoryViewModel,
     retryAction: () -> Unit,
-    navToItemEntry: () -> Unit
+    navToItemEntry: () -> Unit,
+    navToItemEdit: (Int) -> Unit
 ) {
     when(uiState) {
         is ItemListState.Loading -> {
@@ -30,7 +31,7 @@ fun InventoryScreenOptionSelect(
         is ItemListState.Success -> {
             InventoryScreenSuccess(
                 navToItemEntry = { navToItemEntry() },
-                navToItemEdit = { /*TODO*/ },
+                navToItemEdit = { itemId -> navToItemEdit(itemId) },
                 modifier = modifier,
                 viewModel = viewModel
             )
@@ -54,6 +55,7 @@ private fun InventoryScreenOptionSelectPreview() {
             viewModel = inventoryViewModel,
             retryAction = {},
             navToItemEntry = {},
+            navToItemEdit = {}
         )
     }
 }

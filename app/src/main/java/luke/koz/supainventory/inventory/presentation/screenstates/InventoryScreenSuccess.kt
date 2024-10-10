@@ -1,5 +1,6 @@
 package luke.koz.supainventory.inventory.presentation.screenstates
 
+import android.util.Log
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -59,10 +60,35 @@ fun InventoryScreenSuccess(
             }
         },
     ) { innerPadding ->
+        fun logItems() {
+            // Check if the items list is not null or empty
+            if (viewModel.items.isNotEmpty()) {
+                // Iterate through each item in the items list
+                for (item in viewModel.items) {
+                    // Log the id of each item
+                    Log.d("remember", "Log all items: argsId = ${item.id} at index ${viewModel.items.indexOf(item)}")
+                }
+            } else {
+                Log.d("remember", "No items to log")
+            }
+        }
         InventoryBody(
             itemList = viewModel.items,//inventoryListUiState.itemList,
             onItemClick = {
+                /**
+                 * rubber duckie of the lake, what do we want
+                 *  we want item id from .items list.
+                 *  take that list. at index it. take id parameter
+                 */
+                android.util.Log.d("remember", "Log this specific item: argsId = ${viewModel.items[it].id}, viewModel.items[it] = ${viewModel.items[it]}")
+                logItems()
+                Log.d("it", "it = $it")
+                /**
+                 * the correct way of applying this lambda is to directly take the... [it]
+                 * representing position on the list
+                 */
                 navToItemEdit(it)
+                android.util.Log.d("items[it]", "viewModel.items[it].id = ${viewModel.items[it].id}")
                 viewModel.setItemListUiState()
                           },
             modifier = modifier.fillMaxSize(),
