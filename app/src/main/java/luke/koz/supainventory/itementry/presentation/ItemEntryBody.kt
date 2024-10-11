@@ -21,14 +21,14 @@ fun ItemEntryBody(
     itemUiState: ItemUiState,
     onItemValueChange: (ItemDetails) -> Unit,
     onSaveClick: () -> Unit,
+    passedItemId : Int,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_large))
     ) {
-
-        Text("name ${itemUiState.itemDetails.name} price ${itemUiState.itemDetails.price} quantity ${itemUiState.itemDetails.quantity}")
+//        Text("name ${itemUiState.itemDetails.name} price ${itemUiState.itemDetails.price} quantity ${itemUiState.itemDetails.quantity}")
         ItemInputForm(
             itemDetails = itemUiState.itemDetails,
             onValueChange = onItemValueChange,
@@ -55,6 +55,6 @@ private fun ItemEntryScreenPreview() {
             ItemDetails(
                 name = "Item name", price = "10.00", quantity = "5"
             )
-        ), onItemValueChange = {}, onSaveClick = {})
+        ), onItemValueChange = {}, onSaveClick = {}, passedItemId = 0)
     }
 }

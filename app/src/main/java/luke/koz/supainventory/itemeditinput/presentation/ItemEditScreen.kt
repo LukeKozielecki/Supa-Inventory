@@ -1,4 +1,4 @@
-package luke.koz.supainventory.itementry.presentation
+package luke.koz.supainventory.itemeditinput.presentation
 
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -11,29 +11,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import luke.koz.supainventory.itementry.domain.ItemEntryViewModel
-import luke.koz.supainventory.ui.theme.SupaInventoryTheme
+import luke.koz.supainventory.itemeditinput.domain.ItemEditViewModel
+import luke.koz.supainventory.itementry.presentation.ItemEntryBody
 import luke.koz.supainventory.utils.presentation.InventoryTopAppBar
 
-@Serializable object ItemEntryScreenRoute/* (val selectedItem : InventoryItemEntry)*/
+object ItemEditDestination {
+}
 
+//this turns out to be rather useless because edit/input was relegated to other place
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemEntryScreen(
+fun ItemEditScreen(
     navigateBack: () -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ItemEntryViewModel = viewModel()
+    passedItemId : Int,
+    viewModel: ItemEditViewModel = viewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             InventoryTopAppBar(
-                title = "Item edit screen",
+                title = "Edit screen",
                 canNavigateBack = true,
                 navigateUp = onNavigateUp
             )
@@ -45,10 +46,11 @@ fun ItemEntryScreen(
             onItemValueChange = viewModel::updateUiState,
             onSaveClick = {
                 coroutineScope.launch {
-                    viewModel.saveItem()
+                    viewModel.updateItem()
                     navigateBack()
                 }
             },
+            passedItemId = passedItemId,
             modifier = Modifier
                 .padding(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
@@ -60,10 +62,10 @@ fun ItemEntryScreen(
     }
 }
 
-@Preview
-@Composable
-private fun ItemEntryScreenPreview() {
-    SupaInventoryTheme {
-        ItemEntryScreen(navigateBack = { /*TODO*/ }, onNavigateUp = { /*TODO*/ })
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun ItemEditScreenPreview() {
+//    SupaInventoryTheme {
+//        ItemEditScreen(navigateBack = { /*Do nothing*/ }, onNavigateUp = { /*Do nothing*/ }, passedItemId = 0)
+//    }
+//}

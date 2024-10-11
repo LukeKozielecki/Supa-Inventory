@@ -22,6 +22,7 @@ import luke.koz.supainventory.inventory.model.GetItemEntry
 fun ItemDetailsBody(
     itemDetailsUiState: GetItemEntry,
     onSellItem: () -> Unit,
+    onSellUpdateItem: (GetItemEntry) -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -34,7 +35,10 @@ fun ItemDetailsBody(
             item = itemDetailsUiState, modifier = Modifier.fillMaxWidth()
         )
         Button(
-            onClick = onSellItem,
+            onClick = {
+                onSellItem()
+                onSellUpdateItem(itemDetailsUiState)
+                      },
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.small,
             enabled = itemDetailsUiState.itemQuantity > 0

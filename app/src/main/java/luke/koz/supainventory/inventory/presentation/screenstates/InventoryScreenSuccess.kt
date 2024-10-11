@@ -80,7 +80,6 @@ fun InventoryScreenSuccess(
                  *  we want item id from .items list.
                  *  take that list. at index it. take id parameter
                  */
-                android.util.Log.d("remember", "Log this specific item: argsId = ${viewModel.items[it].id}, viewModel.items[it] = ${viewModel.items[it]}")
                 logItems()
                 Log.d("it", "it = $it")
                 /**
@@ -88,7 +87,6 @@ fun InventoryScreenSuccess(
                  * representing position on the list
                  */
                 navToItemEdit(it)
-                android.util.Log.d("items[it]", "viewModel.items[it].id = ${viewModel.items[it].id}")
                 viewModel.setItemListUiState()
                           },
             modifier = modifier.fillMaxSize(),

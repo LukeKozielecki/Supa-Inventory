@@ -12,16 +12,16 @@ fun DeleteConfirmationDialog(
 ) {
     AlertDialog(onDismissRequest = {  },
         title = { Text("Attention") },
-        text = { Text("Are you sure?") },
+        text = { Text("Are you sure you want to delete this item? This action is irreversible.\n\nOnce the gnomes are off, there is no turing back. Some say it's re reason people say 'the ship has been gnomed', no wait...") },
         modifier = modifier,
         dismissButton = {
             TextButton(onClick = onDeleteCancel) {
-                Text("no")
+                Text("Go back")
             }
         },
         confirmButton = {
             TextButton(onClick = onDeleteConfirm) {
-                Text("yes")
+                Text("I am sure")
             }
         }
     )

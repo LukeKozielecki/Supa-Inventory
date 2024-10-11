@@ -40,7 +40,8 @@ fun ItemDetailsScreen(
     navigateToEditItem: (Int) -> Unit,
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ItemDetailsViewModel = viewModel()
+    viewModel: ItemDetailsViewModel = viewModel(),
+    onSellUpdateItem: (GetItemEntry) -> Unit,
 ) {
 //    val uiState = viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -54,7 +55,7 @@ fun ItemDetailsScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*todo*/ },
+                onClick = { navigateToEditItem(item.id) },
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier
                     .padding(
@@ -72,10 +73,16 @@ fun ItemDetailsScreen(
     ) { innerPadding ->
         ItemDetailsBody(
             itemDetailsUiState = item,
-            onSellItem = { viewModel.reduceQuantityByOne() },
+            onSellItem = {
+                coroutineScope.launch {
+                    viewModel.sellItem(item.id)
+//                    navigateBack()
+                }
+            },
+            onSellUpdateItem = { onSellUpdateItem(item) },
             onDelete = {
                 coroutineScope.launch {
-                    viewModel.deleteItem()
+                    viewModel.deleteItem(item.id)
                     navigateBack()
                 }
             },
@@ -95,9 +102,11 @@ fun ItemDetailsScreen(
 private fun ItemDetailsScreenPreview() {
     SupaInventoryTheme {
         ItemDetailsScreen(
-            item = GetItemEntry(5,"Banana",1.0f,6),
-            {},
-            {}
+            item = GetItemEntry(5, "Banana", 1.0f, 6),
+            navigateToEditItem = {},
+            navigateBack = {},
+            viewModel = TODO(),
+            onSellUpdateItem = TODO()
         )
     }
 }

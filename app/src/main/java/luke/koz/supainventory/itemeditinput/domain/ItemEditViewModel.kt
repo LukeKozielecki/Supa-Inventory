@@ -1,4 +1,4 @@
-package luke.koz.supainventory.itemedit.domain
+package luke.koz.supainventory.itemeditinput.domain
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import luke.koz.supainventory.itementry.domain.ItemDetails
 import luke.koz.supainventory.itementry.domain.ItemUiState
 
+//this turns out to be rather useless because edit/input was relegated to other place
 class ItemEditViewModel() : ViewModel() {
 
     /**

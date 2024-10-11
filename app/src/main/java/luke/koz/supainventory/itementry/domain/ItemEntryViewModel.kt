@@ -11,6 +11,7 @@ import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import luke.koz.supainventory.inventory.model.GetItemEntry
+import luke.koz.supainventory.utils.domain.SupabaseUtilities
 import kotlin.random.Random
 
 data class ItemUiState(
@@ -19,7 +20,7 @@ data class ItemUiState(
 )
 
 data class ItemDetails(
-    val id: Int = 0,
+    val id: Int = -1,
     val name: String = "",
     val price: String = "",
     val quantity: String = "",
@@ -32,6 +33,23 @@ class ItemEntryViewModel : ViewModel() {
     ) {
         install(Postgrest)
     }
+
+    suspend fun getItem(givenId:Int) : GetItemEntry{
+        val insertResponse = supabase
+            .from(SupabaseUtilities.getTableName)
+            /**
+             *  selects determines not only filtering but data fetched from server.
+             */
+            .select(columns = Columns.list("id","item_name", "item_price","item_quantity")) {
+                filter {
+                    GetItemEntry::id eq givenId
+                }
+            }
+            .decodeList<GetItemEntry>()
+        android.util.Log.d("items[it]", "itemEntry = ${insertResponse[0].itemName}")
+        return insertResponse[0]
+    }
+
     var itemUiState by mutableStateOf(ItemUiState())
         private set
 
@@ -70,15 +88,41 @@ class ItemEntryViewModel : ViewModel() {
     }
 
     suspend fun saveItem() {
+        val updateOrInsert = itemUiState.itemDetails.id
         val localItemEntry : GetItemEntry = GetItemEntry(
-            id = generateUniqueId(),
+            id = if (itemUiState.itemDetails.id == -1){
+                generateUniqueId()
+            }
+            else {
+                itemUiState.itemDetails.id
+            },
             itemName = itemUiState.itemDetails.name,
             itemPrice = itemUiState.itemDetails.price.toFloat(),
             itemQuantity = itemUiState.itemDetails.quantity.toInt()
         )
-       supabase
-            .from("items_table")
-            .insert(localItemEntry)
+        when(updateOrInsert) {
+            -1 -> {
+                supabase
+                    .from("items_table")
+                    .insert(localItemEntry)
+            }
+            else -> {
+                supabase
+                    .from("items_table")
+                    .update(
+                        {
+                            set("item_name", itemUiState.itemDetails.name)
+                            set("item_price",itemUiState.itemDetails.price.toFloat())
+                            set("item_quantity",itemUiState.itemDetails.quantity.toInt())
+                        }
+                    ) {
+                        filter {
+                            //this is like this because we cannot use [GetItemEntry], let's call it: legacy feature, heh
+                            eq("id",itemUiState.itemDetails.id)
+                        }
+                    }
+            }
+        }
     }
 
     private fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {

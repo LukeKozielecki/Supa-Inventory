@@ -22,6 +22,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import luke.koz.supainventory.R
 import luke.koz.supainventory.inventory.data.InventoryItemEntry
 import luke.koz.supainventory.inventory.domain.InventoryViewModel
@@ -31,8 +34,8 @@ import luke.koz.supainventory.inventory.presentation.InventoryScreenOptionSelect
 import luke.koz.supainventory.itemdetail.domain.ItemDetailsViewModel
 import luke.koz.supainventory.itemdetail.presentation.ItemDetailsScreen
 import luke.koz.supainventory.itemdetail.presentation.ItemDetailsScreenRoute
+import luke.koz.supainventory.itementry.presentation.ItemEditInputScreenRoute
 import luke.koz.supainventory.itementry.presentation.ItemEntryScreen
-import luke.koz.supainventory.itementry.presentation.ItemEntryScreenRoute
 import luke.koz.supainventory.utils.presentation.InventoryGenericWaitingScreen
 import kotlin.reflect.typeOf
 
@@ -49,17 +52,18 @@ fun InventoryNavHost(modifier: Modifier = Modifier) {
                 uiState = inventoryViewModel.itemsListUiState,
                 viewModel = inventoryViewModel,
                 retryAction = { /*TODO*/ },
-                navToItemEntry = { navController.navigate(ItemEntryScreenRoute) },
+                navToItemEntry = { navController.navigate(ItemEditInputScreenRoute()) },
                 navToItemEdit = {itemId -> navController.navigate(ItemDetailsScreenRoute(itemId = itemId))},
                 modifier = modifier,
             )
         }
 
-        composable<ItemEntryScreenRoute> (
+        composable<ItemEditInputScreenRoute> (
             typeMap = mapOf(
                 typeOf<InventoryItemEntry>() to ItemNavType.ItemType,
             )
         ) {
+            val args = it.toRoute<ItemEditInputScreenRoute>()
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -69,7 +73,8 @@ fun InventoryNavHost(modifier: Modifier = Modifier) {
                     navigateBack = {
                         navController.popBackStack()
                     },
-                    onNavigateUp = { /*TODO*/ }
+                    onNavigateUp = { /*TODO*/ },
+                    passedItemId = args.selectedItemId ?: null
                 )
             }
         }
@@ -103,13 +108,27 @@ fun InventoryNavHost(modifier: Modifier = Modifier) {
                         }
                     )
                 } else -> {
+                val onSellUpdateItem: (GetItemEntry) -> Unit = { soldItem ->
+                    // Launching a coroutine to call the suspend function
+                    CoroutineScope(Dispatchers.IO).launch {
+                        localViewModel.sellItem(soldItem.id)
+
+                        // Now fetch the updated item details
+                        val updatedItem = localViewModel.getItem(soldItem.id)
+                        // This should be collected in a mutable state
+                        item.value = updatedItem
+                    }
+                }
                     item.value?.let { itemEntry ->
                     ItemDetailsScreen(
-                            item = itemEntry,
-                            navigateToEditItem = {},
-                            navigateBack = { navController.popBackStack() },
-                            modifier = modifier,
-                            viewModel = localViewModel
+                        item = itemEntry,
+                        navigateToEditItem = {navController.navigate(ItemEditInputScreenRoute(itemEntry.id))},
+                        navigateBack = { navController.popBackStack() },
+                        modifier = modifier,
+                        viewModel = localViewModel,
+                        onSellUpdateItem = { soldItem ->
+                            onSellUpdateItem(soldItem)
+                        }
                         )
                     } ?: run {
                         Text("Something went very wrong during the loading item process")

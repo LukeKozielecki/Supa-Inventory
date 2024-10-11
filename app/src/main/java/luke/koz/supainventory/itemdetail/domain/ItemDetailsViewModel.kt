@@ -10,7 +10,7 @@ class ItemDetailsViewModel : ViewModel() {
     private val supabase = SupabaseUtilities.client
 
     suspend fun getItem(givenId:Int) : GetItemEntry{
-        val itemEntry = supabase
+        val insertResponse = supabase
             .from(SupabaseUtilities.getTableName)
             /**
              *  selects determines not only filtering but data fetched from server.
@@ -20,14 +20,34 @@ class ItemDetailsViewModel : ViewModel() {
                     GetItemEntry::id eq givenId
                 }
             }
-            //.decodeSingle<GetItemEntry>()
             .decodeList<GetItemEntry>()
-        android.util.Log.d("items[it]", "itemEntry = ${itemEntry[0].itemName}")
-        return itemEntry[0]
+        android.util.Log.d("items[it]", "itemEntry = ${insertResponse[0].itemName}")
+        return insertResponse[0]
     }
 
+    suspend fun deleteItem(givenId: Int) : Unit {
+        val response = supabase
+            .from(SupabaseUtilities.getTableName)
+            .delete {
+                filter {
+                    GetItemEntry::id eq givenId
+                }
+            }
+    }
 
-
-    suspend fun deleteItem() {}
-    fun reduceQuantityByOne() {}
+    suspend fun sellItem(givenId: Int) : Unit {
+        val item = getItem(givenId)
+        if (item.itemQuantity > 0) {
+            val updatedQuantity = item.itemQuantity - 1
+            val updateResponse = supabase
+                .from(SupabaseUtilities.getTableName)
+                .update(
+                    mapOf("item_quantity" to updatedQuantity)
+                ) {
+                    filter {
+                        GetItemEntry::id eq givenId
+                    }
+                }
+        }
+    }
 }
