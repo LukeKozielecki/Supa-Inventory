@@ -28,7 +28,7 @@ fun InventoryScreenOptionSelect(
     val uiState by viewModel.itemsListUiState.collectAsState()
     when(uiState) {
         is ItemListState.Loading -> {
-            InventoryListLoadingScreen(modifier = modifier.fillMaxSize())
+            InventoryListLoadingScreen()
         }
         is ItemListState.Success -> {
             InventoryScreenSuccess(
