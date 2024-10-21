@@ -49,7 +49,6 @@ fun InventoryNavHost(modifier: Modifier = Modifier) {
         composable<InventoryScreenOptionSelectRoute> {
             val inventoryViewModel: InventoryViewModel = viewModel(factory = InventoryViewModel.Factory)
             InventoryScreenOptionSelect(
-                uiState = inventoryViewModel.itemsListUiState,
                 viewModel = inventoryViewModel,
                 retryAction = { /*TODO*/ },
                 navToItemEntry = { navController.navigate(ItemEditInputScreenRoute()) },
