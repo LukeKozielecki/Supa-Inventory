@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import luke.koz.supainventory.R
@@ -20,7 +21,7 @@ fun InventoryListLoadingScreen() {
     InventoryGenericWaitingScreen(
         composable = { it ->
             Column (horizontalAlignment = Alignment.CenterHorizontally){
-                Text("Now we wait patiently for the supp-er server to provide the response to diligent gnomes", modifier = it)
+                Text(stringResource(R.string.please_wait_message), modifier = it)
                 Image(
                     painter = painterResource(id = R.drawable.loading_img),
                     contentDescription = "Loading Image",
