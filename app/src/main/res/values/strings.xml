@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Supa Inventory</string>
+    <string name="please_wait_message">Now we wait patiently for the supp-er server to provide the response to diligent gnomes</string>
 </resources>

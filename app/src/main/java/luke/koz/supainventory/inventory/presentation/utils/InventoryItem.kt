@@ -16,6 +16,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import luke.koz.supainventory.R
 import luke.koz.supainventory.inventory.model.GetItemEntry
+import java.util.Currency
+import java.util.Locale
 
 
 @Composable
@@ -39,7 +41,7 @@ fun InventoryItem(
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = "price ${item.itemPrice}",
+                    text = (Currency.getInstance(Locale.getDefault()).symbol)+item.itemPrice,
                     style = MaterialTheme.typography.titleMedium
                 )
             }

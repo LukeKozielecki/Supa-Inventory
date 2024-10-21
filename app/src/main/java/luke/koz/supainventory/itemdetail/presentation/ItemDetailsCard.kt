@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import luke.koz.supainventory.R
 import luke.koz.supainventory.inventory.model.GetItemEntry
+import java.util.Currency
+import java.util.Locale
 
 @Composable
 fun ItemDetails(
@@ -51,7 +53,7 @@ fun ItemDetails(
             )
             ItemDetailsRow(
                 label = "Price:",
-                itemDetail = item.itemPrice.toString(),
+                itemDetail = (Currency.getInstance(Locale.getDefault()).symbol + item.itemPrice.toString()),
                 modifier = Modifier.padding(
                     horizontal = dimensionResource(
                         id = R.dimen
