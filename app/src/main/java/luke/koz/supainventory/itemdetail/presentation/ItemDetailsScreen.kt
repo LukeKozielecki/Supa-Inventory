@@ -48,7 +48,7 @@ fun ItemDetailsScreen(
     Scaffold(
         topBar = {
             InventoryTopAppBar(
-                title = "title",
+                title = "Selected Item Details",
                 canNavigateBack = true,
                 navigateUp = navigateBack
             )

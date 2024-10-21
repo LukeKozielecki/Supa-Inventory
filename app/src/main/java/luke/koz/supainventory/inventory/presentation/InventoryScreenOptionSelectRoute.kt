@@ -2,6 +2,8 @@ package luke.koz.supainventory.inventory.presentation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,12 +20,12 @@ import luke.koz.supainventory.ui.theme.SupaInventoryTheme
 @Composable
 fun InventoryScreenOptionSelect(
     modifier: Modifier = Modifier,
-    uiState: ItemListState,
     viewModel: InventoryViewModel,
     retryAction: () -> Unit,
     navToItemEntry: () -> Unit,
     navToItemEdit: (Int) -> Unit
 ) {
+    val uiState by viewModel.itemsListUiState.collectAsState()
     when(uiState) {
         is ItemListState.Loading -> {
             InventoryListLoadingScreen(modifier = modifier.fillMaxSize())
@@ -51,7 +53,6 @@ private fun InventoryScreenOptionSelectPreview() {
     val inventoryViewModel: InventoryViewModel = viewModel(factory = InventoryViewModel.Factory)
     SupaInventoryTheme {
         InventoryScreenOptionSelect(
-            uiState = inventoryViewModel.itemsListUiState,
             viewModel = inventoryViewModel,
             retryAction = {},
             navToItemEntry = {},
