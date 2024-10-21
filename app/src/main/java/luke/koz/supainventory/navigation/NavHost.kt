@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -22,13 +20,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import luke.koz.supainventory.R
 import luke.koz.supainventory.inventory.data.InventoryItemEntry
 import luke.koz.supainventory.inventory.domain.InventoryViewModel
-import luke.koz.supainventory.inventory.model.GetItemEntry
 import luke.koz.supainventory.inventory.presentation.InventoryScreenOptionSelect
 import luke.koz.supainventory.inventory.presentation.InventoryScreenOptionSelectRoute
 import luke.koz.supainventory.itemdetail.domain.ItemDetailsViewModel
@@ -78,26 +72,31 @@ fun InventoryNavHost(modifier: Modifier = Modifier) {
             }
         }
 
-        composable<ItemDetailsScreenRoute>{
+        composable<ItemDetailsScreenRoute> {
             val args = it.toRoute<ItemDetailsScreenRoute>()
-            val localViewModel : ItemDetailsViewModel = viewModel()
-            val item = remember { mutableStateOf<GetItemEntry?>(null) }
-            //todo add mutable uistate
-            var isLoadingBoolean by remember { mutableStateOf(true) }
-            LaunchedEffect (args.itemId){
-                android.util.Log.d("remember","isLoadingBoolean is $isLoadingBoolean")
-                android.util.Log.d("items[it]", "On composition: viewModel.items[it].id = \n${localViewModel.getItem(args.itemId).id}, name = ${localViewModel.getItem(args.itemId).id}, price = ${localViewModel.getItem(args.itemId).itemPrice}, quantity ${localViewModel.getItem(args.itemId).itemQuantity},")
-                item.value = localViewModel.getItem(args.itemId)
-                isLoadingBoolean = item.value == null
-                android.util.Log.d("remember","isLoadingBoolean is $isLoadingBoolean")
-                android.util.Log.d("items[it]", "viewModel.items[it].id = \n${localViewModel.getItem(args.itemId).id}, name = ${localViewModel.getItem(args.itemId).id}, price = ${localViewModel.getItem(args.itemId).itemPrice}, quantity ${localViewModel.getItem(args.itemId).itemQuantity},")
+            val localViewModel: ItemDetailsViewModel = viewModel(factory = ItemDetailsViewModel.Factory)
+
+            val item by localViewModel.itemDetails.collectAsState()
+            val isLoading by localViewModel.loading.collectAsState()
+            val errorMessage by localViewModel.error.collectAsState()
+
+            LaunchedEffect(args.itemId) {
+                localViewModel.getItem(args.itemId)
             }
-            when (isLoadingBoolean) {
-                true -> {
+
+//            // Check for loading state; you might consider using the Loading LiveData here
+//            isLoading = localViewModel.loading.observeAsState(false).value ?: true
+
+
+            when {
+                isLoading -> {
                     InventoryGenericWaitingScreen(
                         composable = { modifier ->
-                            Column (horizontalAlignment = Alignment.CenterHorizontally){
-                                Text("Now we wait patiently for the supp-er server to provide the response to diligent gnomes", modifier = modifier)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    "Now we wait patiently for the supp-er server to provide the response to diligent gnomes",
+                                    modifier = modifier
+                                )
                                 Image(
                                     painter = painterResource(id = R.drawable.loading_img),
                                     contentDescription = "Loading Image",
@@ -106,32 +105,25 @@ fun InventoryNavHost(modifier: Modifier = Modifier) {
                             }
                         }
                     )
-                } else -> {
-                val onSellUpdateItem: (GetItemEntry) -> Unit = { soldItem ->
-                    // Launching a coroutine to call the suspend function
-                    CoroutineScope(Dispatchers.IO).launch {
-                        localViewModel.sellItem(soldItem.id)
-
-                        // Now fetch the updated item details
-                        val updatedItem = localViewModel.getItem(soldItem.id)
-                        // This should be collected in a mutable state
-                        item.value = updatedItem
-                    }
                 }
-                    item.value?.let { itemEntry ->
+                item != null -> {
+                    val itemEntry = item!!
                     ItemDetailsScreen(
                         item = itemEntry,
-                        navigateToEditItem = {navController.navigate(ItemEditInputScreenRoute(itemEntry.id))},
+                        navigateToEditItem = { navController.navigate(ItemEditInputScreenRoute(itemEntry.id)) },
                         navigateBack = { navController.popBackStack() },
                         modifier = modifier,
                         viewModel = localViewModel,
                         onSellUpdateItem = { soldItem ->
-                            onSellUpdateItem(soldItem)
+                            localViewModel.sellItem(soldItem.id)
                         }
-                        )
-                    } ?: run {
-                        Text("Something went very wrong during the loading item process")
-                    }
+                    )
+                }
+                errorMessage != null -> {
+                    Text("Something went very wrong during the loading item process: ${errorMessage}")
+                }
+                else -> {
+                    Text("Unexpected state")
                 }
             }
         }
